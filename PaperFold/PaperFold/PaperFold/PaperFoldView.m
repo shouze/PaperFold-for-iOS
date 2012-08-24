@@ -39,29 +39,38 @@
 
 CGFloat const kLeftViewUnfoldThreshold = 0.3;
 CGFloat const kRightViewUnfoldThreshold = 0.3;
+CGFloat const kTimerOffset = 0.02;
+
+- (void) configure
+{
+    [self setAutoresizesSubviews:YES];
+    [self setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
+    
+    _contentView = [[TouchThroughUIView alloc] initWithFrame:CGRectMake(0,0,self.frame.size.width,self.frame.size.height)];
+    [_contentView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+    [self addSubview:_contentView];
+    [_contentView setBackgroundColor:[UIColor clearColor]];
+    [_contentView setAutoresizesSubviews:YES];
+    
+    UIPanGestureRecognizer *panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(onContentViewPanned:)];
+    [_contentView addGestureRecognizer:panGestureRecognizer];
+    
+    _state = PaperFoldStateDefault;
+    _lastState = _state;
+    _enableRightFoldDragging = YES;
+    _enableLeftFoldDragging = YES;
+}
+- (void) awakeFromNib
+{
+    [self configure];
+}
 
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self)
     {
-        [self setBackgroundColor:[UIColor darkGrayColor]];
-        [self setAutoresizesSubviews:YES];
-        [self setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
-        
-        _contentView = [[TouchThroughUIView alloc] initWithFrame:CGRectMake(0,0,self.frame.size.width,self.frame.size.height)];
-        [_contentView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-        [self addSubview:_contentView];
-        [_contentView setBackgroundColor:[UIColor whiteColor]];
-        [_contentView setAutoresizesSubviews:YES];
-        
-        UIPanGestureRecognizer *panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(onContentViewPanned:)];
-        [_contentView addGestureRecognizer:panGestureRecognizer];
-        
-        _state = PaperFoldStateDefault;
-        _lastState = _state;
-        _enableRightFoldDragging = YES;
-        _enableLeftFoldDragging = YES;
+        [self configure];
     }
     return self;
 }
@@ -75,7 +84,7 @@ CGFloat const kRightViewUnfoldThreshold = 0.3;
 - (void)setLeftFoldContentView:(UIView*)view
 {
     if (self.leftFoldView) [self.leftFoldView removeFromSuperview];
-
+    
     self.leftFoldView = [[FoldView alloc] initWithFrame:CGRectMake(0,0,view.frame.size.width,self.frame.size.height)];
     [self.leftFoldView setAutoresizingMask:UIViewAutoresizingFlexibleHeight];
     [self insertSubview:self.leftFoldView belowSubview:self.contentView];
@@ -83,10 +92,10 @@ CGFloat const kRightViewUnfoldThreshold = 0.3;
     [view setAutoresizingMask:UIViewAutoresizingFlexibleHeight];
     [self setPaperFoldState:PaperFoldStateDefault];
     
-    UIView *line = [[UIView alloc] initWithFrame:CGRectMake(-1,0,1,self.frame.size.height)];
-    [line setAutoresizingMask:UIViewAutoresizingFlexibleHeight];
-    [self.contentView addSubview:line];
-    [line setBackgroundColor:[UIColor colorWithWhite:0.9 alpha:0.5]];
+    //    UIView *line = [[UIView alloc] initWithFrame:CGRectMake(-1,0,1,self.frame.size.height)];
+    //    [line setAutoresizingMask:UIViewAutoresizingFlexibleHeight];
+    //    [self.contentView addSubview:line];
+    //    [line setBackgroundColor:[UIColor colorWithWhite:0.9 alpha:0.5]];
 }
 
 - (void)setRightFoldContentView:(UIView*)view rightViewFoldCount:(int)rightViewFoldCount rightViewPullFactor:(float)rightViewPullFactor
@@ -98,18 +107,18 @@ CGFloat const kRightViewUnfoldThreshold = 0.3;
     [view setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
     [self setPaperFoldState:PaperFoldStateDefault];
     
-    UIView *line = [[UIView alloc] initWithFrame:CGRectMake(self.contentView.frame.size.width,0,1,self.frame.size.height)];
-    [line setAutoresizingMask:UIViewAutoresizingFlexibleHeight];
-    [self.contentView addSubview:line];
-    [line setAutoresizingMask:UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleHeight];
-    [line setBackgroundColor:[UIColor colorWithWhite:0.9 alpha:0.5]];
+    //    UIView *line = [[UIView alloc] initWithFrame:CGRectMake(self.contentView.frame.size.width,0,1,self.frame.size.height)];
+    //    [line setAutoresizingMask:UIViewAutoresizingFlexibleHeight];
+    //    [self.contentView addSubview:line];
+    //    [line setAutoresizingMask:UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleHeight];
+    //    [line setBackgroundColor:[UIColor colorWithWhite:0.9 alpha:0.5]];
 }
 
 - (void)onContentViewPanned:(UIPanGestureRecognizer*)gesture
 {
     // cancel gesture if another animation has not finished yet
     if ([self.animationTimer isValid]) return;
-
+    
     CGPoint point = [gesture translationInView:self];
     
     if ([gesture state]==UIGestureRecognizerStateChanged)
@@ -141,7 +150,7 @@ CGFloat const kRightViewUnfoldThreshold = 0.3;
                 if (self.enableLeftFoldDragging)
                 {
                     // if offset more than threshold, open fully
-                    self.animationTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(unfoldLeftView:) userInfo:nil repeats:YES];
+                    self.animationTimer = [NSTimer scheduledTimerWithTimeInterval:kTimerOffset target:self selector:@selector(unfoldLeftView:) userInfo:nil repeats:YES];
                     return;
                 }
             }
@@ -153,7 +162,7 @@ CGFloat const kRightViewUnfoldThreshold = 0.3;
                 if (self.enableRightFoldDragging)
                 {
                     // if offset more than threshold, open fully
-                    self.animationTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(unfoldRightView:) userInfo:nil repeats:YES];
+                    self.animationTimer = [NSTimer scheduledTimerWithTimeInterval:kTimerOffset target:self selector:@selector(unfoldRightView:) userInfo:nil repeats:YES];
                     return;
                 }
             }
@@ -162,7 +171,7 @@ CGFloat const kRightViewUnfoldThreshold = 0.3;
         // after panning completes
         // if offset does not exceed threshold
         // use NSTimer to create manual animation to restore view
-        self.animationTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(restoreView:) userInfo:nil repeats:YES];
+        self.animationTimer = [NSTimer scheduledTimerWithTimeInterval:kTimerOffset target:self selector:@selector(restoreView:) userInfo:nil repeats:YES];
         
     }
 }
@@ -172,9 +181,9 @@ CGFloat const kRightViewUnfoldThreshold = 0.3;
     float x = point.x;
     // if offset to the right, show the left view
     // if offset to the left, show the right multi-fold view
-
+    
     if (self.state!=self.lastState) self.lastState = self.state;
-
+    
     if (x>0.0)
     {
         if (self.enableLeftFoldDragging || !panned)
@@ -217,7 +226,7 @@ CGFloat const kRightViewUnfoldThreshold = 0.3;
             }
         }
     }
-    else 
+    else
     {
         [self.contentView setTransform:CGAffineTransformMakeTranslation(0, 0)];
         [self.leftFoldView unfoldWithParentOffset:x];
@@ -262,7 +271,7 @@ CGFloat const kRightViewUnfoldThreshold = 0.3;
     float x = transform.tx - (transform.tx+self.rightFoldView.frame.size.width)/8;
     transform = CGAffineTransformMakeTranslation(x, 0);
     [self.contentView setTransform:transform];
-
+    
     if (x<=-self.rightFoldView.frame.size.width+5)
     {
         [timer invalidate];
@@ -315,15 +324,15 @@ CGFloat const kRightViewUnfoldThreshold = 0.3;
     [self setIsAutomatedFolding:YES];
     if (state==PaperFoldStateDefault)
     {
-        self.animationTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(restoreView:) userInfo:nil repeats:YES];
+        self.animationTimer = [NSTimer scheduledTimerWithTimeInterval:kTimerOffset target:self selector:@selector(restoreView:) userInfo:nil repeats:YES];
     }
     else if (state==PaperFoldStateLeftUnfolded)
     {
-        self.animationTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(unfoldLeftView:) userInfo:nil repeats:YES];
+        self.animationTimer = [NSTimer scheduledTimerWithTimeInterval:kTimerOffset target:self selector:@selector(unfoldLeftView:) userInfo:nil repeats:YES];
     }
     else if (state==PaperFoldStateRightUnfolded)
     {
-        self.animationTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(unfoldRightView:) userInfo:nil repeats:YES];
+        self.animationTimer = [NSTimer scheduledTimerWithTimeInterval:kTimerOffset target:self selector:@selector(unfoldRightView:) userInfo:nil repeats:YES];
     }
 }
 
