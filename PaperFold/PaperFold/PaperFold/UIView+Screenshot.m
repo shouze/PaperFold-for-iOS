@@ -40,7 +40,7 @@
 - (UIImage*)screenshot
 {
     // take screenshot of the view
-    if ([self isKindOfClass:NSClassFromString(@"MKMapView")])
+    //if ([self isKindOfClass:NSClassFromString(@"MKMapView")])
     {
         if ([[[UIDevice currentDevice] systemVersion] floatValue]>=6.0)
         {
@@ -54,11 +54,11 @@
             UIGraphicsBeginImageContextWithOptions(self.frame.size, NO, 0.0);
         }
     }
-    else 
-    {
-        // for performance consideration, everything else other than mapview will use a lower quality screenshot
-        UIGraphicsBeginImageContext(self.frame.size);
-    }
+//    else 
+//    {
+//        // for performance consideration, everything else other than mapview will use a lower quality screenshot
+//        UIGraphicsBeginImageContext(self.frame.size);
+//    }
     
     [self.layer renderInContext:UIGraphicsGetCurrentContext()];
     
