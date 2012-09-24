@@ -51,6 +51,9 @@ typedef enum
 // callback when paper fold transition state changes
 // does not callback when action is cancelled
 - (void)paperFoldView:(id)paperFoldView didFoldAutomatically:(BOOL)automated toState:(PaperFoldState)paperFoldState;
+
+- (void) paperFoldView:(id)paperFoldView willChangeStateFrom:(PaperFoldState)fromState;
+
 // callback when paper fold view is offset
 - (void)paperFoldView:(id)paperFoldView viewDidOffset:(CGPoint)offset;
 @end

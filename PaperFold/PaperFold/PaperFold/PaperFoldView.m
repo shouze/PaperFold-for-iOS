@@ -121,7 +121,12 @@ CGFloat const kTimerOffset = 0.02;
     
     CGPoint point = [gesture translationInView:self];
     
-    if ([gesture state]==UIGestureRecognizerStateChanged)
+    if ([gesture state] == UIGestureRecognizerStateBegan) {
+        if ([self.delegate respondsToSelector:@selector(paperFoldView:willChangeStateFrom:)]) {
+            [self.delegate paperFoldView:self willChangeStateFrom:_state];
+        }
+    }
+    else if ([gesture state]==UIGestureRecognizerStateChanged)
     {
         if (_state==PaperFoldStateDefault)
         {
@@ -322,6 +327,9 @@ CGFloat const kTimerOffset = 0.02;
 - (void)setPaperFoldState:(PaperFoldState)state
 {
     [self setIsAutomatedFolding:YES];
+    if ([self.delegate respondsToSelector:@selector(paperFoldView:willChangeStateFrom:)]) {
+        [self.delegate paperFoldView:self willChangeStateFrom:_state];
+    }
     if (state==PaperFoldStateDefault)
     {
         self.animationTimer = [NSTimer scheduledTimerWithTimeInterval:kTimerOffset target:self selector:@selector(restoreView:) userInfo:nil repeats:YES];
