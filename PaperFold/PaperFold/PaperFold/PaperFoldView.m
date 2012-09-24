@@ -198,7 +198,7 @@ CGFloat const kTimerOffset = 0.02;
             [self.contentView setTransform:CGAffineTransformMakeTranslation(x, 0)];
             [self.leftFoldView unfoldWithParentOffset:x];
             
-            if ([self.delegate respondsToSelector:@selector(paperFoldView:viewDidOffset:)])
+            if (self.delegate && [self.delegate respondsToSelector:@selector(paperFoldView:viewDidOffset:)])
             {
                 [self.delegate paperFoldView:self viewDidOffset:CGPointMake(x,0)];
             }
@@ -220,7 +220,7 @@ CGFloat const kTimerOffset = 0.02;
             [self.contentView setTransform:CGAffineTransformMakeTranslation(x1, 0)];
             [self.rightFoldView unfoldWithParentOffset:x];
             
-            if ([self.delegate respondsToSelector:@selector(paperFoldView:viewDidOffset:)])
+            if (self.delegate && [self.delegate respondsToSelector:@selector(paperFoldView:viewDidOffset:)])
             {
                 [self.delegate paperFoldView:self viewDidOffset:CGPointMake(x,0)];
             }
@@ -233,7 +233,7 @@ CGFloat const kTimerOffset = 0.02;
         [self.rightFoldView unfoldWithParentOffset:x];
         self.state = PaperFoldStateDefault;
         
-        if ([self.delegate respondsToSelector:@selector(paperFoldView:viewDidOffset:)])
+        if (self.delegate && [self.delegate respondsToSelector:@selector(paperFoldView:viewDidOffset:)])
         {
             [self.delegate paperFoldView:self viewDidOffset:CGPointMake(x,0)];
         }
